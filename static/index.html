@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Agent</title>
+
+<link rel="stylesheet" href="/static/styles.css">
+
+</head>
+<body>
+
+<div class="top-buttons" id="top-buttons">
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<button class="new-chat-btn" onclick="newChat()">گفت‌وگو جدید</button>
+</div>
+
+<div class="left-buttons">
+
+    <div class="db-status" id="db-status">
+        <span class="status-text" id="status-text">! Conecction Faild</span>
+        <span class="status-dot" id="status-dot"></span>
+    </div>
+
+    <button class="connection-img-btn" onclick="toggleConnectionPanel()">
+        <img src="/static/image/database (1).png">
+    </button>
+
+    <button class="profile-btn">
+        <img src="/static/image/user.png">
+    </button>
+</div>
+
+
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-title">گفت‌وگوها</div>
+<button class="close-btn" onclick="closesidebar()">✕</button>
+</div>
+<div class="sidebar-content">
+تاریخچه‌ای برای نمایش وجود ندارد !
+</div>
+</div>
+
+<!-- پنل اتصال دیتابیس -->
+<div class="connection-panel" id="connection-panel">
+<div class="connection-header">
+<div class="connection-title">تنظیمات اتصال پایگاه داده</div>
+<button class="close-btn" onclick="closeConnectionPanel()">✕</button>
+</div>
+<div class="connection-content">
+<div class="input-group">
+<label>نام سرور :</label>
+<input type="text" id="db-server" placeholder="localhost یا آدرس سرور">
+</div>
+<div class="input-group">
+<label>نام پایگاه داده:</label>
+<input type="text" id="db-name" placeholder="نام دیتابیس">
+</div>
+<div class="status-message" id="status-message"></div>
+<button class="connect-btn" id="connect-btn" onclick="connectDatabase()">اتصال</button>
+</div>
+</div>
+
+<div class="main-container">
+
+<div class="header-section" id="header-section">
+    <h1 class="main-header">Data Query Agent</h1>
+</div>
+
+<div class="prompt-text" id="prompt-text">
+چطور می‌توانم به شما کمک کنم ؟
+</div>
+
+<!-- ✅ چت ها اینجا قرار میگیرند -->
+<div id="chat-area"></div>
+
+<div class="input-bar">
+<input id="user-input" type="text" placeholder="سوال خودرا بپرسید...">
+<button class="send-btn">↑</button>
+</div>
+
+</div>
+
+<script src="/static/script.js"></script>
+
+
+</body>
+</html>

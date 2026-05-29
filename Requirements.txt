@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+openai
+langchain
+langchain-openai
+langchain-community
+langchain-chroma
+langchain-text-splitters
+pandas
+numpy
+tiktoken
+pypdfium2
+sqlalchemy
+pyodbc
+python-dotenv
+sqlalchemy
+psycopg2
