@@ -1,6 +1,7 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
 
 # Virtual environments
 venv/
@@ -10,6 +11,18 @@ env/
 # Secrets
 .env
 .env.*
+*.pem
+
+# Logs / DB
+*.log
+*.db
+*.sqlite3
+
+# Test / tooling
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
 # Editors / OS
 .vscode/
