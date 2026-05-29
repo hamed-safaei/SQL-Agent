@@ -1,5 +1,5 @@
 from typing import Dict, List, Any
-from app.models.schemas  import AgentState
+from app.models.states  import AgentState
 from app.chains import (
     intent_chain,
     chat_chain,

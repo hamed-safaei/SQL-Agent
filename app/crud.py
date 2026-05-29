@@ -5,7 +5,7 @@ from typing import Optional, Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy import select, update , delete
 
-from app.models.tables import User, Session as ChatSession, Message
+from app.models.database import User, Session as ChatSession, Message
 
 
 # -------------------------
