@@ -7,7 +7,7 @@
 
 
 
-from app.database import run_sql_query
+from app.clientdb import run_sql_query
 
 test = run_sql_query("SELECT * FROM sales.staffs")
 print(test)

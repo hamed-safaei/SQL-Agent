@@ -1,13 +1,13 @@
 from typing import Dict, List, Any
 from app.models.states  import AgentState
-from app.chains import (
+from app.agent.chains import (
     intent_chain,
     chat_chain,
     sql_chain,
     full_chain,
     analyzer_chain,
 )
-from app.database import get_db_schema_text , run_sql_query
+from app.clientdb import get_db_schema_text , run_sql_query
 
 
 #Nodes

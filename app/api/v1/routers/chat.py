@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session as DBSession
 
-from app.appdb import get_app_db
+from app.core import get_app_db
 from app.models import schemas
-from app import crud
-from app.graph import graph
+from app import repositories
+from app.agent import graph
 
 router = APIRouter(
     prefix="/chat",
@@ -17,7 +17,7 @@ def chat_with_agent(
     req: schemas.MessageCreate,
     db: DBSession = Depends(get_app_db)
 ):
-    active_session = crud.get_active_session_for_user(db, req.user_id)
+    active_session = repositories.get_active_session_for_user(db, req.user_id)
 
     if not active_session:
         raise HTTPException(
@@ -25,7 +25,7 @@ def chat_with_agent(
             detail="No active session found for this user"
         )
 
-    user_message = crud.create_message(
+    user_message = repositories.create_message(
         db,
         session_id=active_session.id,
         role="user",
@@ -34,7 +34,7 @@ def chat_with_agent(
 
     graph_result = graph.invoke({"question": req.content})
 
-    assistant_message = crud.create_message(
+    assistant_message = repositories.create_message(
         db,
         session_id=active_session.id,
         role="assistant",
@@ -55,7 +55,7 @@ def get_chat_history(
     user_id: int,
     db: DBSession = Depends(get_app_db)
 ):
-    messages = crud.get_messages_for_active_session(db, user_id)
+    messages = repositories.get_messages_for_active_session(db, user_id)
 
     if messages is None:
         raise HTTPException(

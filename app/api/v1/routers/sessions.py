@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session as DBSession
 
-from app.appdb import get_app_db
+from app.core import get_app_db
 from app.models import schemas
-from app import crud
+from app import repositories
 
 router = APIRouter(
     prefix="/sessions",
@@ -16,7 +16,7 @@ def create_session(
     session_data: schemas.SessionCreate,
     db: DBSession = Depends(get_app_db)
 ):
-    user = crud.get_user_by_id(db, session_data.user_id)
+    user = repositories.get_user_by_id(db, session_data.user_id)
 
     if not user:
         raise HTTPException(
@@ -24,7 +24,7 @@ def create_session(
             detail="User not found"
         )
 
-    return crud.create_session(
+    return repositories.create_session(
         db,
         user_id=session_data.user_id,
         deactivate_others=True
@@ -37,7 +37,7 @@ def read_session(
     user_id: int,
     db: DBSession = Depends(get_app_db)
 ):
-    db_session = crud.get_and_activate_session(
+    db_session = repositories.get_and_activate_session(
         db,
         user_id=user_id,
         session_id=session_id
@@ -58,7 +58,7 @@ def delete_chat_session(
     user_id: int,
     db: DBSession = Depends(get_app_db)
 ):
-    success = crud.delete_session_by_id(
+    success = repositories.delete_session_by_id(
         db,
         user_id=user_id,
         session_id=session_id

@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 import psycopg2
-from app.config import settings
+from app.core import settings
 from typing import Dict, List, Any
 
 SCHEMA_QUERY = """

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
 from app.agent import run_ai_agent_stream
-from app.graph import graph
+from app.agent import graph
 from app.models import schemas
 
 router = APIRouter(

@@ -9,7 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-from app.appdb import Base
+from app.core import Base
 
 
 class Session(Base):

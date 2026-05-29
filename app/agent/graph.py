@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 
 from app.models.states  import AgentState
-from app.nodes import (
+from app.agent.nodes import (
     intent_node,
     router,
     chat_node,

@@ -3,8 +3,8 @@ import time
 import re
 from typing import Generator
 
-from app.graph import graph
-from app.chains import (
+from app.agent.graph import graph
+from app.agent.chains import (
     intent_chain,
     chat_prompt,
     sql_chain,
@@ -12,7 +12,7 @@ from app.chains import (
     analyzer_chain,
     streaming_llm,
 )
-from app.nodes import get_db_schema_text, run_sql_query
+from app.agent.nodes import get_db_schema_text, run_sql_query
 
 
 # def run_ai_agent(question: str):
