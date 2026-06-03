@@ -13,7 +13,7 @@ async def lifespan(app: FastAPI):
 
     print(">>> Running lifespan startup...")
 
-    Base.metadata.create_all(bind=app_engine)
+    # Base.metadata.create_all(bind=app_engine)
 
     print(">>> Database tables created!")
 

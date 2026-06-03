@@ -16,12 +16,13 @@ from app.core import Base
 class Message(Base):
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
 
     session_id = Column(
         Integer,
         ForeignKey("sessions.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     role = Column(

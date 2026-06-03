@@ -15,12 +15,13 @@ from app.core import Base
 class Session(Base):
     __tablename__ = "sessions"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
 
     user_id = Column(
         Integer,
         ForeignKey("users.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     created_at = Column(
