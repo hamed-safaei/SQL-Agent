@@ -10,15 +10,10 @@ from app.api import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
     print(">>> Running lifespan startup...")
-
     # Base.metadata.create_all(bind=app_engine)
-
-    print(">>> Database tables created!")
-
+    # print(">>> Database tables created!")
     yield
-
     print(">>> App shutting down...")
 
 
