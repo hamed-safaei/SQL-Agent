@@ -11,7 +11,11 @@ class Settings:
     DB_USER = os.getenv("PG_USER", "")
     DB_PASSWORD = os.getenv("PG_PASSWORD", "")
     DB_PORT = os.getenv("PG_PORT", "")
-    
+
+    SECRET_KEY = os.getenv("SECRET_KEY")    
+    ACCESS_TOKEN_EXPIRE_MINUTES = 15
+    ALGORITHM = "HS256"
+
 
 
 settings = Settings()

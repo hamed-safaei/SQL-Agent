@@ -6,15 +6,22 @@ from sqlalchemy.orm import Session
 from app.models.database import User
 
 
-def create_user(db: Session, username: str) -> User:
-    user = User(username=username)
+def create_user(
+    db: Session,
+    username: str,
+    password_hash: str
+) -> User:
+
+    user = User(
+        username=username,
+        password_hash=password_hash
+    )
 
     db.add(user)
     db.commit()
     db.refresh(user)
 
     return user
-
 
 def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
     return db.get(User, user_id)

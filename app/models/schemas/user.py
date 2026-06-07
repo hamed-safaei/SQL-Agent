@@ -17,3 +17,16 @@ class UserRead(UserBase):
 
 class UserWithSessions(UserRead):
     sessions: list[Session] = []
+
+
+
+# ///////////////////////////
+
+class UserRegister(BaseModel):
+    username: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str

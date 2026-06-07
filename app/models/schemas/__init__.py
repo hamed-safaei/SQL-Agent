@@ -20,7 +20,9 @@ from .session import (
 from .user import (
     UserCreate,
     UserRead,
-    UserWithSessions
+    UserWithSessions ,
+    UserRegister , 
+    UserLogin
 )
 
 from .query import QueryRequest
