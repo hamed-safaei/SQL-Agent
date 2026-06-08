@@ -30,3 +30,7 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+
+class UserRefreshToken(BaseModel):
+    token: str

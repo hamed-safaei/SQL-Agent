@@ -22,7 +22,8 @@ from .user import (
     UserRead,
     UserWithSessions ,
     UserRegister , 
-    UserLogin
+    UserLogin , 
+    UserRefreshToken
 )
 
 from .query import QueryRequest

@@ -12,9 +12,8 @@ class Settings:
     DB_PASSWORD = os.getenv("PG_PASSWORD", "")
     DB_PORT = os.getenv("PG_PORT", "")
 
-    SECRET_KEY = os.getenv("SECRET_KEY")    
-    ACCESS_TOKEN_EXPIRE_MINUTES = 15
-    ALGORITHM = "HS256"
+    JWT_SECRET_KEY = os.getenv("SECRET_KEY")    
+    # ALGORITHM = "HS256"
 
 
 

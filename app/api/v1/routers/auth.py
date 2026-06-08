@@ -96,34 +96,6 @@ def login(
 
 
 
-
-@router.post("/refresh")
-def refresh_token(
-    refresh_token: str,
-    db: DBSession = Depends(get_app_db)
-):
-    token_record = repositories.get_refresh_token(db, refresh_token)
-
-    if not token_record:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-    # expire check
-    if token_record.expires_at < datetime.utcnow():
-        raise HTTPException(status_code=401, detail="Refresh token expired")
-
-    # create new access token
-    access_token = create_access_token(
-        data={"sub": str(token_record.user_id)}
-    )
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
-
-
-
-
 @router.post("/logout")
 def logout(
     refresh_token: str,
@@ -167,3 +139,47 @@ def login(
     db.refresh(token_obj)
     return JSONResponse (content = {"detail" : "logged in successfully" , "token": token_obj.refresh_token} )
 
+
+
+
+from app.auth import generate_access_token , generate_refresh_token , decode_refresh_token
+
+
+@router.post("/login3")
+def login(
+    user: schemas.UserLogin,
+    db: DBSession = Depends(get_app_db)
+):
+    db_user = repositories.get_user_by_username(db, user.username)
+
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not verify_password(user.password, db_user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # token_obj = TokenModel(user_id = db_user.id , refresh_token = generate_token() , expires_at=expires_at , revoked=False)
+    # db.add(token_obj)
+    # db.commit()
+    # db.refresh(token_obj)
+
+    access_token = generate_access_token(db_user.id)
+    refresh_token = generate_refresh_token(db_user.id)
+
+    return JSONResponse (content = {"detail" : "logged in successfully" , "access_token": access_token , "refresh_token": refresh_token} )
+
+
+
+
+
+
+@router.post("/refresh")
+def refresh_token(
+    request: schemas.UserRefreshToken ,
+    db: DBSession = Depends(get_app_db)
+):
+        
+    user_id = decode_refresh_token(request.token)
+    access_token = generate_access_token(user_id)
+
+    return JSONResponse (content = { "access_token": access_token } )

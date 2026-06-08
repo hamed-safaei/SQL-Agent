@@ -21,6 +21,7 @@ def get_auth_user(
             status_code=401,
             detail="credentials are not provided",
         )
+    #other logic
 
     return token_obj.user
 
