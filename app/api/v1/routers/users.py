@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
 from sqlalchemy.orm import Session as DBSession
-
+from typing import List
 from app.core import get_app_db
 from app.models import schemas
 from app import repositories
@@ -11,17 +11,17 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=schemas.UserRead)
-def create_user(user: schemas.UserCreate, db: DBSession = Depends(get_app_db)):
-    existing_user = repositories.get_user_by_username(db, user.username)
+# @router.post("", response_model=schemas.UserRead)
+# def create_user(user: schemas.UserCreate, db: DBSession = Depends(get_app_db)):
+#     existing_user = repositories.get_user_by_username(db, user.username)
 
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="Username already exists"
-        )
+#     if existing_user:
+#         raise HTTPException(
+#             status_code=400,
+#             detail="Username already exists"
+#         )
 
-    return repositories.create_user(db=db, username=user.username)
+#     return repositories.create_user(db=db, username=user.username)
 
 
 @router.get("/search", response_model=schemas.UserWithSessions)
@@ -37,7 +37,9 @@ def get_user(
     return db_user
 
 
-@router.get("")
+
+
+@router.get("" , response_model = List[schemas.UserRead])
 def list_users(
     skip: int = 0,
     limit: int = 100,

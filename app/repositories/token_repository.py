@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
-
 from app.models.database import TokenModel
 
 
@@ -8,7 +7,7 @@ def create_refresh_token_record(
     db: Session,
     user_id: int,
     refresh_token: str,
-    expires_days: int = 7
+    expires_days: int = 1
 ):
     token = TokenModel(
         user_id=user_id,
@@ -30,9 +29,14 @@ def get_refresh_token(db: Session, token: str):
     ).first()
 
 
-def revoke_token(db: Session, token: str):
+def revoke_token(
+    db: Session,
+    token: str
+):
     db.query(TokenModel).filter(
         TokenModel.refresh_token == token
-    ).update({"revoked": True})
+    ).update(
+        {"revoked": True}
+    )
 
     db.commit()

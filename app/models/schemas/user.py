@@ -22,6 +22,7 @@ class UserWithSessions(UserRead):
 
 # ///////////////////////////
 
+
 class UserRegister(BaseModel):
     username: str
     password: str

@@ -9,6 +9,5 @@ from .database import (
 
 from .security import (
     verify_password,
-    create_access_token ,
     hash_password
 )

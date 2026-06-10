@@ -10,37 +10,37 @@ import jwt
 from jwt import DecodeError , ExpiredSignatureError , InvalidSignatureError
 from datetime import datetime, timedelta, timezone
 
-security = HTTPBearer()
+# security = HTTPBearer()
 
 
-def get_jwt_auth_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_app_db)
-):
-    token = credentials.credentials
-    try:
-      decoded = jwt.decode(token , settings.JWT_SECRET_KEY ,algorithms="HS256")
-      user_id = decoded.get("user_id" , None)
+# def get_jwt_auth_user(
+#     credentials: HTTPAuthorizationCredentials = Depends(security),
+#     db: Session = Depends(get_app_db)
+# ):
+#     token = credentials.credentials
+#     try:
+#       decoded = jwt.decode(token , settings.JWT_SECRET_KEY ,algorithms="HS256")
+#       user_id = decoded.get("user_id" , None)
 
-      if not user_id :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , user id not in payload")
+#       if not user_id :
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , user id not in payload")
         
-      if decoded.get("type") != "access" :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , invalid token type")
+#       if decoded.get("type") != "access" :
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , invalid token type")
 
-      if datetime.fromtimestamp(decoded.get("exp")) < datetime.now() :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , token expired")
+#       if datetime.fromtimestamp(decoded.get("exp")) < datetime.now() :
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , token expired")
   
-      user_obj = db.query(User).filter_by(id = user_id).one()
-      return user_obj
+#       user_obj = db.query(User).filter_by(id = user_id).one()
+#       return user_obj
 
 
-    except InvalidSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , InvalidSignature")
-    except DecodeError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , Decode failed")
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail=f"Authentication Failed , {e}")
+#     except InvalidSignatureError:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , InvalidSignature")
+#     except DecodeError:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Authentication Failed , Decode failed")
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail=f"Authentication Failed , {e}")
 
 
 def generate_access_token(user_id: int, expires_in : int = 60*5) -> str:
@@ -79,7 +79,6 @@ def generate_refresh_token(user_id: int, expires_in : int = 3600 * 24) -> str:
 
 
 
-
 def decode_refresh_token(token) :
  try:
       decoded = jwt.decode(token , settings.JWT_SECRET_KEY ,algorithms="HS256")
@@ -104,3 +103,39 @@ def decode_refresh_token(token) :
  except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail=f"Authentication Failed , {e}")
 
+
+
+
+def decode_access_token(token: str):
+    try:
+        decoded = jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=["HS256"]
+        )
+
+        if decoded.get("type") != "access":
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token type"
+            )
+
+        return decoded
+
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token expired"
+        )
+
+    except InvalidSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid signature"
+        )
+
+    except DecodeError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
