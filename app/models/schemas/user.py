@@ -1,26 +1,14 @@
 from pydantic import BaseModel, ConfigDict
-from app.models.schemas.session import SessionsRead
 
 
 class UserBase(BaseModel):
     username: str
 
 
-class UserCreate(UserBase):
-    pass
-
-
 class UserRead(UserBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
 
-
-class UserWithSessions(UserRead):
-    sessions: list[SessionsRead] = []
-
-
-
-# # ///////////////////////////
 
 
 class UserRegister(BaseModel):

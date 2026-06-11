@@ -7,18 +7,18 @@ from .agent import (
 )
 
 from .message import (
-    Message,
-    MessageCreate,
+    getUserMessage , 
+    getAssistantMessage,
     MessageRead
 )
 
 from .session import (
-    SessionsRead)
+    SessionInfo ,
+    SessionTitleUpdate ,
+    SessionSummary)
 
 from .user import (
-    UserCreate,
     UserRead,
-    UserWithSessions ,
     UserRegister , 
     UserLogin , 
     UserRefreshToken
@@ -29,8 +29,8 @@ from .query import QueryRequest
 from .connection import ConnectionTest
 
 from .chat import (
-  ChatRequest,
-  ChatResponse ,
-  AssistantMessageRead ,
-  UserMessageRead
+    ChatRequest,
+    UserChat,
+    AssistantChat,
+    ChatResponse
 )

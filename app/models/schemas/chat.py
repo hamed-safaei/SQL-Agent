@@ -2,41 +2,32 @@ from pydantic import BaseModel , ConfigDict
 from typing import Optional, Any, Dict
 from datetime import datetime
 from typing import Literal, Union, Dict, Any
+from app.models.schemas import SessionInfo
 from uuid import UUID
 
 
 
-
 class ChatRequest(BaseModel):
-    session_id: Optional[int] = None
+    session_id: Optional[UUID] = None
     content: str
 
-class SessionInfo(BaseModel):
-    id: UUID
-    title: str
-    is_new: bool
 
-
-class UserMessageRead(BaseModel):
+class UserChat(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
-    # role: Literal["user"]
     content: str
     created_at: datetime
 
 
-class AssistantMessageRead(BaseModel):
+class AssistantChat(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
-    # role: Literal["assistant"]
     agent_metadata: Dict[str, Any]
     created_at: datetime
 
 
 class ChatResponse(BaseModel):
     session: SessionInfo
-    user_message: UserMessageRead
-    agent_message: AssistantMessageRead
+    user_message: UserChat
+    agent_message: AssistantChat
 
-class SessionTitleUpdate(BaseModel):
-    title: str
+
+

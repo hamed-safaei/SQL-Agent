@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_app_db
 from app.auth.dependencies import get_jwt_auth_user
-from app.models.schemas.chat import ChatRequest, ChatResponse, SessionTitleUpdate
-from app.models.schemas.session import SessionSummary
+from app.models.schemas.chat import ChatRequest, ChatResponse
+from app.models.schemas.session import SessionSummary , SessionTitleUpdate , SessionInfo
 from app.models.schemas.message import MessageRead
-from app.models.schemas.chat import UserMessageRead , AssistantMessageRead , SessionInfo
+from app.models.schemas.chat import UserChat , AssistantChat
 from uuid import UUID
 
 
@@ -64,8 +64,8 @@ def send_message(
             title=session.title,
             is_new=is_new_session
         ),
-        user_message=UserMessageRead.model_validate(user_msg),
-        agent_message=AssistantMessageRead.model_validate(agent_msg),
+        user_message=UserChat.model_validate(user_msg),
+        agent_message=AssistantChat.model_validate(agent_msg),
     )
 
 
