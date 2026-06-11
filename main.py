@@ -48,7 +48,7 @@ def public_route():
 
 @app.get("/private/token/jwt")
 def private_route(user = Depends(get_jwt_auth_user)):
-    print(user.username)
+    print(user.id)
     return {"message" : "This is a private route"}
 
 
@@ -63,7 +63,6 @@ def private_route(user = Depends(get_jwt_auth_user)):
 # def get_cookie(request: Request):
 #     print(request.cookies.get('test'))
 #     return {"message": "Cookie Has Been Set"}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8008)

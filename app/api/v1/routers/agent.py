@@ -1,31 +1,31 @@
-from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+# from fastapi import APIRouter
+# from fastapi.responses import StreamingResponse
 
-from app.agent import run_ai_agent_stream
-from app.agent import graph
-from app.models import schemas
+# from app.agent import run_ai_agent_stream
+# from app.agent import graph
+# from app.models import schemas
 
-router = APIRouter(
-    tags=["Agent"]
-)
-
-
-@router.post("/ask-stream")
-def ask_agent_stream(req: schemas.QueryRequest):
-
-    return StreamingResponse(
-        run_ai_agent_stream(req.question),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no"
-        }
-    )
+# router = APIRouter(
+#     tags=["Agent"]
+# )
 
 
-@router.post("/ask")
-def ask_agent(req: schemas.QueryRequest):
+# @router.post("/ask-stream")
+# def ask_agent_stream(req: schemas.QueryRequest):
 
-    result = graph.invoke({"question": req.question})
+#     return StreamingResponse(
+#         run_ai_agent_stream(req.question),
+#         media_type="text/event-stream",
+#         headers={
+#             "Cache-Control": "no-cache",
+#             "X-Accel-Buffering": "no"
+#         }
+#     )
 
-    return result
+
+# @router.post("/ask")
+# def ask_agent(req: schemas.QueryRequest):
+
+#     result = graph.invoke({"question": req.question})
+
+#     return result

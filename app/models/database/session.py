@@ -3,9 +3,11 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
     DateTime,
-    Boolean
+    Boolean ,
+    String ,
+    UUID
 )
-
+import uuid
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -15,30 +17,29 @@ from app.core import Base
 class Session(Base):
     __tablename__ = "sessions"
 
-    id = Column(Integer, primary_key=True)
-
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )  
     user_id = Column(
         Integer,
         ForeignKey("users.id"),
         nullable=False,
         index=True
     )
-
     created_at = Column(
         DateTime,
         default=datetime.utcnow
     )
-
-    is_active = Column(
-        Boolean,
-        default=True
+    title = Column(
+        String,
+        nullable=False
     )
-
     user = relationship(
         "User",
         back_populates="sessions"
     )
-
     messages = relationship(
         "Message",
         back_populates="session"

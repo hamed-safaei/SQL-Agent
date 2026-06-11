@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from app.models.schemas.session import Session
+from app.models.schemas.session import SessionsRead
 
 
 class UserBase(BaseModel):
@@ -16,11 +16,11 @@ class UserRead(UserBase):
 
 
 class UserWithSessions(UserRead):
-    sessions: list[Session] = []
+    sessions: list[SessionsRead] = []
 
 
 
-# ///////////////////////////
+# # ///////////////////////////
 
 
 class UserRegister(BaseModel):

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session as DBSession
-
+from app.auth import get_jwt_auth_user
+from app.models.database import User
 from app.core import get_app_db
 from app.models import schemas
 from app import repositories
@@ -11,45 +12,19 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=schemas.Session)
+
+
+@router.post("", response_model=schemas.SessionsRead)
 def create_session(
-    session_data: schemas.SessionCreate,
+    user: User = Depends(get_jwt_auth_user),
     db: DBSession = Depends(get_app_db)
 ):
-    user = repositories.get_user_by_id(db, session_data.user_id)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-
     return repositories.create_session(
         db,
-        user_id=session_data.user_id,
-        deactivate_others=True
+        user_id=user.id
     )
 
 
-@router.get("/{session_id}", response_model=schemas.Session)
-def read_session(
-    session_id: int,
-    user_id: int,
-    db: DBSession = Depends(get_app_db)
-):
-    db_session = repositories.get_and_activate_session(
-        db,
-        user_id=user_id,
-        session_id=session_id
-    )
-
-    if not db_session:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Session not found or does not belong to this user"
-        )
-
-    return db_session
 
 
 @router.delete("/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -71,3 +46,18 @@ def delete_chat_session(
         )
 
     return None
+
+
+
+
+@router.get("/")
+def get_my_sessions(
+    user: User = Depends(get_jwt_auth_user),
+    db: DBSession = Depends(get_app_db)
+):
+    sessions = repositories.get_user_sessions(
+        db,
+        user_id=user.id
+    )
+
+    return sessions

@@ -13,9 +13,7 @@ from .message import (
 )
 
 from .session import (
-    Session,
-    SessionCreate
-)
+    SessionsRead)
 
 from .user import (
     UserCreate,
@@ -29,3 +27,10 @@ from .user import (
 from .query import QueryRequest
 
 from .connection import ConnectionTest
+
+from .chat import (
+  ChatRequest,
+  ChatResponse ,
+  AssistantMessageRead ,
+  UserMessageRead
+)
