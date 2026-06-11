@@ -5,15 +5,20 @@ from .user_repository import (
     list_users,
 )
 
-# from .session_repository import (
-#     create_session,
-#     get_user_sessions,
-#     delete_session_by_id
-# )
+from .session_repository import (
+    create_session,
+    get_session_by_id,
+    get_sessions_by_user_id,
+    update_session_title,
+    delete_session
+)
 
-# from .message_repository import (
-#     create_message,
-# )
+from .message_repository import (
+    _make_json_serializable,
+    create_user_message,
+    create_agent_message,
+    get_messages_by_session_id
+)
 
 from .session_repository import(
     create_session,
