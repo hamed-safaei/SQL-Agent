@@ -13,3 +13,9 @@ class User(Base):
         "Session",
         back_populates="user"
     )
+
+    feedbacks = relationship(
+    "Feedback",
+    back_populates="user",
+    cascade="all, delete-orphan"
+    )

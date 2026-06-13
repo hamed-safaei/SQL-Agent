@@ -44,3 +44,10 @@ class Message(Base):
         "Session",
         back_populates="messages"
     )
+
+
+    feedbacks = relationship(
+    "Feedback",
+    back_populates="message",
+    cascade="all, delete-orphan"
+    )
