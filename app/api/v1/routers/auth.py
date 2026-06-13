@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends , Request
+from fastapi import APIRouter, Depends , Request , status
 from sqlalchemy.orm import Session as DBSession
 
 from app.core import get_app_db
@@ -19,17 +19,21 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=schemas.UserRead
+    # response_model=schemas.UserRead ,
+    status_code=status.HTTP_201_CREATED
 )
 def register(
     user: schemas.UserRegister,
     db: DBSession = Depends(get_app_db)
 ):
-    return register_user(
+    register_user(
         db,
         user.username,
         user.password
     )
+    return {
+        "detail" : "User Created Successfully"
+    }
 
 
 # @router.post("/login/token")

@@ -160,7 +160,7 @@ def login_jwt(
     if not db_user:
         raise HTTPException(
             status_code=401,
-            detail="Invalid credentials"
+            detail="Invalid Username Or Password"
         )
 
     if not verify_password(
@@ -169,7 +169,7 @@ def login_jwt(
     ):
         raise HTTPException(
             status_code=401,
-            detail="Invalid credentials"
+            detail="Invalid Username Or Password"
         )
 
     access_token = generate_access_token(
@@ -198,7 +198,7 @@ def login_jwt(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,      # فعلاً برای localhost
+        secure=False,      
         samesite="lax",
         max_age=60 * 5
     )
@@ -207,7 +207,7 @@ def login_jwt(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,      # فعلاً برای localhost
+        secure=False,     
         samesite="lax",
         max_age= 60 * 60 * 24
         
