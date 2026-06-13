@@ -1,4 +1,4 @@
-from pydantic import BaseModel , ConfigDict
+from pydantic import BaseModel , ConfigDict , Field
 from typing import Optional, Any, Dict
 from datetime import datetime
 from typing import Literal, Union, Dict, Any
@@ -8,7 +8,7 @@ from uuid import UUID
 
 
 class ChatRequest(BaseModel):
-    session_id: Optional[UUID] = None
+    session_id: Optional[UUID] = Field(default=None, examples=[None])
     content: str
 
 
