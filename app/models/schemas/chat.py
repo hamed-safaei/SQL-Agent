@@ -21,13 +21,13 @@ class UserChat(BaseModel):
 class AssistantChat(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     agent_metadata: Dict[str, Any]
-    created_at: datetime
+    # created_at: datetime
 
 
 class ChatResponse(BaseModel):
     session: SessionInfo
-    user_message: UserChat
-    agent_message: AssistantChat
+    # user_message: UserChat
+    assistant: AssistantChat
 
 
 

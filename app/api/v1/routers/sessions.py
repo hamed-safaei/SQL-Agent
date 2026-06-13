@@ -15,7 +15,7 @@ from app.repositories import (
     delete_session ,
     update_session_title
     )
-
+from app.agent.schemas.states import message_read_mapper
 
 
 
@@ -32,6 +32,8 @@ def _get_authorized_session(db: Session, session_id: int, user_id: int):
     if session.user_id != user_id:
         raise HTTPException(status_code=403, detail="Access denied")
     return session
+
+
 
 
 
@@ -54,8 +56,15 @@ def get_session_messages(
     current_user=Depends(get_jwt_auth_user)
 ):
     _get_authorized_session(db, session_id, current_user.id)
-    return  get_messages_by_session_id(db, session_id)
+    messages = get_messages_by_session_id(
+        db,
+        session_id,
+    )
 
+    return [
+        message_read_mapper(message)
+        for message in messages
+    ]
 
 
 

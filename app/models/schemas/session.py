@@ -14,7 +14,6 @@ class SessionSummary(BaseModel):
 class SessionInfo(BaseModel):
     id: UUID
     title: str
-    is_new: bool
 
 
 class SessionTitleUpdate(BaseModel):

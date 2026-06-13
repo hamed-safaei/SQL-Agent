@@ -14,6 +14,7 @@ from app.repositories import (create_session,
     create_user_message,
     create_agent_message,
     )
+from app.agent.schemas.states import build_metadata 
 
 
 
@@ -39,10 +40,8 @@ def send_message(
     db: Session = Depends(get_app_db),
     current_user=Depends(get_jwt_auth_user)
 ):
-    is_new_session = False
     if req.session_id is None:
         session =  create_session(db, user_id=current_user.id)
-        is_new_session = True
     else:
         session = _get_authorized_session(db, req.session_id, current_user.id)
 
@@ -57,16 +56,15 @@ def send_message(
     agent_msg =  create_agent_message(
         db=db,
         session_id=session.id,
-        agent_metadata=agent_result
+        agent_metadata=build_metadata(agent_result)
     )
 
     return ChatResponse(
         session=SessionInfo(
             id=session.id,
-            title=session.title,
-            is_new=is_new_session
+            title=session.title
         ),
-        user_message=UserChat.model_validate(user_msg),
-        agent_message=AssistantChat.model_validate(agent_msg),
+        # user_message=UserChat.model_validate(user_msg),
+        assistant=AssistantChat.model_validate(agent_msg),
     )
 

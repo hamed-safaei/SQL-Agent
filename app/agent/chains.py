@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.config import settings
-from app.models.schemas  import (
+from app.agent.schemas  import (
     IntentOutput,
     ChatOutput,
     SQLOutput,
