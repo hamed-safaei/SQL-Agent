@@ -7,7 +7,7 @@ from app.agent.chains import (
     full_chain,
     analyzer_chain,
 )
-from app.clientdb import get_db_schema_text , run_sql_query
+from app.core.database.clientdb import get_db_schema_text , run_sql_query
 
 
 #Nodes
@@ -70,3 +70,4 @@ def analyzer_node(state: AgentState):
         "result": state["result"]
     })
     return {"analysis": analysis_result.analysis}
+

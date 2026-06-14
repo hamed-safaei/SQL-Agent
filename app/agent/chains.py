@@ -156,3 +156,5 @@ chat_chain = chat_prompt | llm.with_structured_output(ChatOutput)
 sql_chain = sql_prompt | llm.with_structured_output(SQLOutput)
 full_chain = full_prompt | llm.with_structured_output(FullOutput)
 analyzer_chain = analyzer_prompt | llm.with_structured_output(AnalysisOutput)
+
+

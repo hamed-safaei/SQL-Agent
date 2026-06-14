@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app.agent import graph
-from app.core.database import get_app_db
+from app.core.database.database import get_app_db
 
 from app.models.schemas import( 
 UserChat , AssistantChat ,ChatRequest, ChatResponse ,
@@ -109,3 +109,12 @@ def send_message(
         assistant=AssistantChat.model_validate(agent_msg),
         message=Message.model_validate(agent_msg),
     )
+
+
+
+
+
+
+
+
+

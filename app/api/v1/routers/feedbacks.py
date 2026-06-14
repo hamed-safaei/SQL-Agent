@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends , status
 from sqlalchemy.orm import Session
 
-from app.core.database import get_app_db
+from app.core.database.database import get_app_db
 from app.api.v1.dependencies import get_jwt_auth_user
 from app.models.schemas import (
     FeedbackCreate,

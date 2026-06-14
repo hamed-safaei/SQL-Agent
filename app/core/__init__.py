@@ -1,5 +1,5 @@
 from .config import settings
-from .database import (
+from .database.database import (
     Base,
     app_engine,
     AppSessionLocal,
