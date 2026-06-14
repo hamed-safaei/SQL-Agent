@@ -44,12 +44,7 @@ class Feedback(Base):
         nullable=False
     )
 
-    # examples:
-    # incorrect
-    # incomplete
-    # irrelevant
-    # harmful
-    # other
+
     reason_code = Column(
         String(50),
         nullable=True

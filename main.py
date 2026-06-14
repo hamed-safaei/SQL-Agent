@@ -4,7 +4,8 @@ import uvicorn
 from fastapi_swagger import patch_fastapi
 from app.core import Base, app_engine
 from app.api import api_router
-from app.auth import get_current_username , get_auth_user , get_jwt_auth_user
+from app.auth import get_current_username , get_auth_user 
+from app.api.v1.dependencies import get_jwt_auth_user
 from app.models.database import User
 
 

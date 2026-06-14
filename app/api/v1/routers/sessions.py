@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session as DBSession
-from app.auth import get_jwt_auth_user
+from app.api.v1.dependencies import get_jwt_auth_user
 from app.core import get_app_db
 from app.models.schemas import( 
 SessionSummary , SessionTitleUpdate ,
@@ -25,6 +25,8 @@ router = APIRouter(
 )
 
 
+
+
 def _get_authorized_session(db: Session, session_id: int, user_id: int):
     session =  get_session_by_id(db, session_id)
     if session is None:
@@ -32,7 +34,6 @@ def _get_authorized_session(db: Session, session_id: int, user_id: int):
     if session.user_id != user_id:
         raise HTTPException(status_code=403, detail="Access denied")
     return session
-
 
 
 
