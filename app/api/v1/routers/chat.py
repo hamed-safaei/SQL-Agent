@@ -7,7 +7,7 @@ from app.auth.dependencies import get_jwt_auth_user
 
 from app.models.schemas import( 
 UserChat , AssistantChat ,ChatRequest, ChatResponse ,
-SessionInfo
+SessionInfo , Message
 )
 from app.repositories import (create_session,
     get_session_by_id,
@@ -18,7 +18,7 @@ from app.agent.schemas.states import build_metadata
 
 
 
-router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
 
@@ -66,5 +66,6 @@ def send_message(
         ),
         # user_message=UserChat.model_validate(user_msg),
         assistant=AssistantChat.model_validate(agent_msg),
+        message = Message.model_validate(agent_msg)
     )
 

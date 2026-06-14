@@ -200,7 +200,7 @@ def login_jwt(
         httponly=True,
         secure=False,      
         samesite="lax",
-        max_age=60 * 5
+        max_age=60 * 120
     )
 
     response.set_cookie(

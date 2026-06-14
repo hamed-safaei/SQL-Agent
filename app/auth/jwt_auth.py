@@ -43,7 +43,7 @@ from datetime import datetime, timedelta, timezone
 #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail=f"Authentication Failed , {e}")
 
 
-def generate_access_token(user_id: int, expires_in : int = 60*5) -> str:
+def generate_access_token(user_id: int, expires_in : int = 60*120) -> str:
     now = datetime.now(timezone.utc)
 
     payload = {

@@ -24,6 +24,12 @@ from .connection import ConnectionTest
 from .chat import (
     ChatRequest,
     UserChat,
+    Message ,
     AssistantChat,
     ChatResponse
+)
+
+from .feedbacks import (
+    FeedbackCreate,
+    FeedbackResponse
 )

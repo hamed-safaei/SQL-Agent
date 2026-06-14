@@ -24,10 +24,17 @@ class AssistantChat(BaseModel):
     # created_at: datetime
 
 
+class Message(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id : int
+
+
 class ChatResponse(BaseModel):
     session: SessionInfo
     # user_message: UserChat
     assistant: AssistantChat
+    message : Message
+    
 
 
 
