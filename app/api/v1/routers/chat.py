@@ -72,43 +72,43 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
 
-@router.post("/send1", response_model=ChatResponse)
-def send_message(
-    req: ChatRequest,
-    session=Depends(get_authorized_session),
-    db: Session = Depends(get_app_db),
-    current_user=Depends(get_jwt_auth_user),
-):
-    if session is None:
-        session = create_session(
-            db=db,
-            user_id=current_user.id,
-        )
+# @router.post("/send1", response_model=ChatResponse)
+# def send_message(
+#     req: ChatRequest,
+#     session=Depends(get_authorized_session),
+#     db: Session = Depends(get_app_db),
+#     current_user=Depends(get_jwt_auth_user),
+# ):
+#     if session is None:
+#         session = create_session(
+#             db=db,
+#             user_id=current_user.id,
+#         )
 
-    user_msg = create_user_message(
-        db=db,
-        session_id=session.id,
-        content=req.content,
-    )
+#     user_msg = create_user_message(
+#         db=db,
+#         session_id=session.id,
+#         content=req.content,
+#     )
 
-    agent_result = graph.invoke(
-        {"question": req.content}
-    )
+#     agent_result = graph.invoke(
+#         {"question": req.content}
+#     )
 
-    agent_msg = create_agent_message(
-        db=db,
-        session_id=session.id,
-        agent_metadata=build_metadata(agent_result),
-    )
+#     agent_msg = create_agent_message(
+#         db=db,
+#         session_id=session.id,
+#         agent_metadata=build_metadata(agent_result),
+#     )
 
-    return ChatResponse(
-        session=SessionInfo(
-            id=session.id,
-            title=session.title,
-        ),
-        assistant=AssistantChat.model_validate(agent_msg),
-        message=Message.model_validate(agent_msg),
-    )
+#     return ChatResponse(
+#         session=SessionInfo(
+#             id=session.id,
+#             title=session.title,
+#         ),
+#         assistant=AssistantChat.model_validate(agent_msg),
+#         message=Message.model_validate(agent_msg),
+#     )
 
 
 
@@ -141,7 +141,8 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
-from app.api.st import run, AgentState
+from app.agent.agent import run
+from app.agent.schemas.states.agent_state import AgentState
 
 # ─────────────────────────────────────────
 # Request model
@@ -150,6 +151,7 @@ class ChatRequest1(BaseModel):
     session_id: Optional[UUID] = Field(default=None, examples=[None])
     content:   str
     streaming: bool = Field(default=False, description="True → SSE stream, False → JSON")
+
 # ─────────────────────────────────────────
 # SSE helpers
 # ─────────────────────────────────────────
@@ -181,22 +183,26 @@ async def _stream_sse(
     Iterate the graph's streaming generator and forward each event as an SSE frame.
     After the graph finishes, persist the agent message and emit 'done'.
  
-    SSE event types emitted:
+    SSE event order:
     ┌─────────────────┬────────────────────────────────────────────────────────────┐
     │ event name      │ data payload                                               │
     ├─────────────────┼────────────────────────────────────────────────────────────┤
+    │ session_info    │ {id, title}           ← FIRST, before anything else        │
     │ intent          │ {mode}                                                     │
     │ token           │ {node, section?, value}                                    │
     │ section_start   │ {node, section}                                            │
     │ section_end     │ {node, section}                                            │
     │ result          │ {node, section?, value}                                    │
-    │ done            │ {session: {id, title}, agent_msg_id}                       │
+    │ done            │ {agent_msg_id}        ← LAST, only msg id                 │
     └─────────────────┴────────────────────────────────────────────────────────────┘
     """
+    # ── 1. Emit session info immediately, before the graph starts ─────────────
+    yield _sse("session_info", {
+        "id":    session.id,
+        "title": session.title,
+    })
+ 
     # Accumulate the full graph state across all node updates.
-    # Each "updates" event is a dict  {node_name: {fields_written_by_that_node}}.
-    # Merging every node's output gives us the same final state that
-    # graph.invoke() would return — which is exactly what build_metadata expects.
     final_state: dict = {"question": question}
  
     for event_mode, event_data in run(question, streaming=True):
@@ -207,7 +213,7 @@ async def _stream_sse(
                 if isinstance(node_output, dict):
                     final_state.update(node_output)
  
-            # Emit intent event to the client after intent node runs
+            # Emit intent event after intent node runs
             if "intent" in event_data:
                 yield _sse("intent", {"mode": event_data["intent"].get("mode")})
  
@@ -217,7 +223,7 @@ async def _stream_sse(
             if evt_type == "token":
                 yield _sse("token", {
                     "node":    event_data.get("node"),
-                    "section": event_data.get("section"),
+                    # "section": event_data.get("section"),
                     "value":   event_data.get("value"),
                 })
  
@@ -240,21 +246,15 @@ async def _stream_sse(
                     "value":   event_data.get("value"),
                 })
  
-    # ── Graph finished → persist agent message ────────────────────────────────
+    # ── 2. Graph finished → persist agent message ─────────────────────────────
     agent_msg = create_agent_message_fn(
         db=db,
         session_id=session.id,
         agent_metadata=build_metadata_fn(final_state),
     )
  
-    # ── Signal end of stream with agent msg id + session info ─────────────────
-    yield _sse("done", {
-        "session": {
-            "id":    session.id,
-            "title": session.title,
-        },
-        "agent_msg_id": agent_msg.id,
-    })
+    # ── 3. Done — only the agent message id ───────────────────────────────────
+    yield _sse("done", {"agent_msg_id": agent_msg.id})
  
  
 # ─────────────────────────────────────────
@@ -321,3 +321,4 @@ def send_message(
             assistant=AssistantChat.model_validate(agent_msg),
             message=Message.model_validate(agent_msg),
         )
+ 

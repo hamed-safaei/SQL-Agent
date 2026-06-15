@@ -43,11 +43,12 @@ def build_metadata(state: AgentState):
 
 def message_read_mapper(message):
     if message.role == "assistant":
+        metadata = build_metadata(message.agent_metadata)
+
         return {
             "role": "assistant",
-            "agent_metadata": build_metadata(
-                message.agent_metadata
-            ),
+            "mode": metadata.pop("mode"),   # خارج کردن mode
+            "agent_metadata": metadata,
             "created_at": message.created_at,
         }
 

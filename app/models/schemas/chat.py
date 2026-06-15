@@ -20,8 +20,9 @@ class UserChat(BaseModel):
 
 class AssistantChat(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
+    mode: str
     agent_metadata: Dict[str, Any]
-    # created_at: datetime
 
 
 class Message(BaseModel):
