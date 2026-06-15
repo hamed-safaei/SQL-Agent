@@ -7,7 +7,6 @@
 #     full_chain,
 #     analyzer_chain,
 # )
-# from app.core.database.clientdb import get_db_schema_text , run_sql_query
 
 
 # #Nodes
@@ -94,23 +93,24 @@ from .chains import (
     sql_message_chain,
     analyzer_chain,
 )
+from app.core.database.clientdb import get_db_schema_text , run_sql_query
 
 # ── Helpers (replace stubs with real implementations) ─────────────────────────
 
-def get_db_schema_text() -> str:
-    """Return the database schema as plain text."""
-    # TODO: replace with your real schema loader
-    return """
-    TABLE users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, created_at TIMESTAMP);
-    TABLE orders (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id), total NUMERIC, created_at TIMESTAMP);
-    TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC, stock INT);
-    TABLE order_items (id SERIAL PRIMARY KEY, order_id INT REFERENCES orders(id), product_id INT REFERENCES products(id), quantity INT);
-    """
+# def get_db_schema_text() -> str:
+#     """Return the database schema as plain text."""
+#     # TODO: replace with your real schema loader
+#     return """
+#     TABLE users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, created_at TIMESTAMP);
+#     TABLE orders (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id), total NUMERIC, created_at TIMESTAMP);
+#     TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC, stock INT);
+#     TABLE order_items (id SERIAL PRIMARY KEY, order_id INT REFERENCES orders(id), product_id INT REFERENCES products(id), quantity INT);
+#     """
 
-def run_sql_query(sql: str) -> Any:
-    """Execute the SQL and return the result."""
-    # TODO: replace with your real DB executor
-    return [{"id": 1, "name": "Alice", "total": 250.0}]
+# def run_sql_query(sql: str) -> Any:
+#     """Execute the SQL and return the result."""
+#     # TODO: replace with your real DB executor
+#     return [{"id": 1, "name": "Alice", "total": 250.0}]
 
 
 # ── Intent (no streaming) ─────────────────────────────────────────────────────

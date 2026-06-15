@@ -29,7 +29,7 @@ from datetime import datetime
 
 class getUserMessage(BaseModel):
     role: Literal["user"]
-    content: str
+    message: str
     created_at: datetime
 
 

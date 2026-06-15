@@ -54,6 +54,6 @@ def message_read_mapper(message):
 
     return {
         "role": "user",
-        "content": message.content,
+        "message": message.content,
         "created_at": message.created_at,
     }
