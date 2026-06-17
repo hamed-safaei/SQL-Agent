@@ -72,7 +72,285 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
 
-@router.post("/send", response_model=ChatResponse)
+# @router.post("/send1", response_model=ChatResponse)
+# def send_message(
+#     req: ChatRequest,
+#     session=Depends(get_authorized_session),
+#     db: Session = Depends(get_app_db),
+#     current_user=Depends(get_jwt_auth_user),
+# ):
+#     if session is None:
+#         session = create_session(
+#             db=db,
+#             user_id=current_user.id,
+#         )
+
+#     user_msg = create_user_message(
+#         db=db,
+#         session_id=session.id,
+#         content=req.content,
+#     )
+
+#     agent_result = graph.invoke(
+#         {"question": req.content}
+#     )
+
+#     agent_msg = create_agent_message(
+#         db=db,
+#         session_id=session.id,
+#         agent_metadata=build_metadata(agent_result),
+#     )
+
+#     return ChatResponse(
+#         session=SessionInfo(
+#             id=session.id,
+#             title=session.title,
+#         ),
+#         assistant=AssistantChat.model_validate(agent_msg),
+#         message=Message.model_validate(agent_msg),
+#     )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import json
+# from typing import Optional, AsyncGenerator
+
+# from fastapi import APIRouter, Depends
+# from fastapi.responses import StreamingResponse
+# from sqlalchemy.orm import Session
+# from pydantic import BaseModel, Field
+
+# from app.agent.agent import run
+# from app.agent.schemas.states.agent_state import AgentState
+
+# # ─────────────────────────────────────────
+# # Request model
+# # ─────────────────────────────────────────
+# class ChatRequest1(BaseModel):
+#     session_id: Optional[UUID] = Field(default=None, examples=[None])
+#     content:   str
+#     streaming: bool = Field(default=False, description="True → SSE stream, False → JSON")
+
+# # ─────────────────────────────────────────
+# # SSE helpers
+# # ─────────────────────────────────────────
+# def _default_serializer(obj):
+#     """Fallback serializer for types json.dumps cannot handle natively (UUID, datetime, Decimal …)."""
+#     import uuid, datetime, decimal
+#     if isinstance(obj, uuid.UUID):
+#         return str(obj)
+#     if isinstance(obj, (datetime.date, datetime.datetime)):
+#         return obj.isoformat()
+#     if isinstance(obj, decimal.Decimal):
+#         return float(obj)
+#     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+ 
+ 
+# def _sse(event: str, data: dict) -> str:
+#     """Format a single SSE frame."""
+#     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False, default=_default_serializer)}\n\n"
+ 
+ 
+# async def _stream_sse(
+#     question: str,
+#     session,
+#     db,
+#     create_agent_message_fn,
+#     build_metadata_fn,
+# ) -> AsyncGenerator[str, None]:
+#     """
+#     Iterate the graph's streaming generator and forward each event as an SSE frame.
+#     After the graph finishes, persist the agent message and emit 'done'.
+ 
+#     SSE event order:
+#     ┌─────────────────┬────────────────────────────────────────────────────────────┐
+#     │ event name      │ data payload                                               │
+#     ├─────────────────┼────────────────────────────────────────────────────────────┤
+#     │ session_info    │ {id, title}           ← FIRST, before anything else        │
+#     │ intent          │ {mode}                                                     │
+#     │ token           │ {node, section?, value}                                    │
+#     │ section_start   │ {node, section}                                            │
+#     │ section_end     │ {node, section}                                            │
+#     │ result          │ {node, section?, value}                                    │
+#     │ done            │ {agent_msg_id}        ← LAST, only msg id                 │
+#     └─────────────────┴────────────────────────────────────────────────────────────┘
+#     """
+#     # ── 1. Emit session info immediately, before the graph starts ─────────────
+#     yield _sse("session", {
+#         "id":    session.id,
+#         "title": session.title,
+#     })
+ 
+#     # Accumulate the full graph state across all node updates.
+#     final_state: dict = {"question": question}
+ 
+#     for event_mode, event_data in run(question, streaming=True):
+ 
+#         if event_mode == "updates":
+#             # Merge every node's output into final_state
+#             for node_output in event_data.values():
+#                 if isinstance(node_output, dict):
+#                     final_state.update(node_output)
+ 
+#             # Emit intent event after intent node runs
+#             if "intent" in event_data:
+#                 yield _sse("intent", {"mode": event_data["intent"].get("mode")})
+ 
+#         elif event_mode == "custom":
+#             evt_type = event_data.get("type")
+ 
+#             if evt_type == "token":
+#                 yield _sse("token", {
+#                     "node":    event_data.get("node"),
+#                     # "section": event_data.get("section"),
+#                     "value":   event_data.get("value"),
+#                 })
+ 
+#             elif evt_type == "section_start":
+#                 yield _sse("section_start", {
+#                     "node":    event_data.get("node"),
+#                     "section": event_data.get("section"),
+#                 })
+ 
+#             elif evt_type == "section_end":
+#                 yield _sse("section_end", {
+#                     "node":    event_data.get("node"),
+#                     "section": event_data.get("section"),
+#                 })
+ 
+#             elif evt_type == "result":
+#                 yield _sse("result", {
+#                     "node":    event_data.get("node"),
+#                     "section": event_data.get("section"),
+#                     "value":   event_data.get("value"),
+#                 })
+ 
+#     # ── 2. Graph finished → persist agent message ─────────────────────────────
+#     agent_msg = create_agent_message_fn(
+#         db=db,
+#         session_id=session.id,
+#         agent_metadata=build_metadata_fn(final_state),
+#     )
+ 
+#     # ── 3. Done — only the agent message id ───────────────────────────────────
+#     yield _sse("message", {"agent_msg_id": agent_msg.id})
+ 
+ 
+# # ─────────────────────────────────────────
+# # Endpoint
+# # ─────────────────────────────────────────
+# @router.post("/send")
+# def send_message(
+#     req: ChatRequest1,
+#     session=Depends(get_authorized_session),
+#     db: Session = Depends(get_app_db),
+#     current_user=Depends(get_jwt_auth_user),
+# ):
+#     # ── Session & user message (same as before) ───────────────────────────────
+#     if session is None:
+#         session = create_session(db=db, user_id=current_user.id)
+ 
+#     user_msg = create_user_message(
+#         db=db,
+#         session_id=session.id,
+#         content=req.content,
+#     )
+ 
+#     # ─────────────────────────────────────────
+#     # Branch: streaming  vs  non-streaming
+#     # ─────────────────────────────────────────
+#     if req.streaming:
+#         # ── SSE path ─────────────────────────────────────────────────────────
+#         # We do NOT save the agent message here because the graph hasn't
+#         # finished yet — the client receives the "done" event when it's complete.
+#         # If you need to persist the message, do it inside the generator after
+#         # the loop (pass db / session via closure or a background task).
+#         return StreamingResponse(
+#             _stream_sse(
+#                 question=req.content,
+#                 session=session,
+#                 db=db,
+#                 create_agent_message_fn=create_agent_message,
+#                 build_metadata_fn=build_metadata,
+#             ),
+#             media_type="text/event-stream",
+#             headers={
+#                 # Prevent proxies / nginx from buffering the stream
+#                 "Cache-Control":       "no-cache",
+#                 "X-Accel-Buffering":   "no",
+#                 "Connection":          "keep-alive",
+#             },
+#         )
+ 
+#     else:
+#         # ── Non-streaming path (identical logic to old endpoint) ──────────────
+#         agent_result: AgentState = run(req.content, streaming=False)
+ 
+#         agent_msg = create_agent_message(
+#             db=db,
+#             session_id=session.id,
+#             agent_metadata=build_metadata(agent_result),
+#         )
+ 
+#         metadata = build_metadata(agent_msg.agent_metadata)
+
+#         assistant = AssistantChat(
+#             mode=metadata.pop("mode"),
+#             agent_metadata=metadata,
+#         )
+
+#         return ChatResponse(
+#             session=SessionInfo(
+#                 id=session.id,
+#                 title=session.title,
+#             ),
+#             assistant=assistant,
+#             message=Message.model_validate(agent_msg),
+#         )
+
+from app.services.chat_service import stream_chat_sse, run_chat_sync
+from fastapi.responses import StreamingResponse
+
+
+
+def _build_chat_response(session, agent_msg) -> ChatResponse:
+    metadata = build_metadata(agent_msg.agent_metadata)
+    assistant = AssistantChat(
+        mode=metadata.pop("mode"),
+        agent_metadata=metadata,
+    )
+    return ChatResponse(
+        session=SessionInfo(id=session.id, title=session.title),
+        assistant=assistant,
+        message=Message.model_validate(agent_msg),
+    )
+ 
+ 
+# ─────────────────────────────────────────
+# Endpoint
+# ─────────────────────────────────────────
+@router.post("/send")
 def send_message(
     req: ChatRequest,
     session=Depends(get_authorized_session),
@@ -80,41 +358,36 @@ def send_message(
     current_user=Depends(get_jwt_auth_user),
 ):
     if session is None:
-        session = create_session(
-            db=db,
-            user_id=current_user.id,
-        )
-
-    user_msg = create_user_message(
+        session = create_session(db=db, user_id=current_user.id)
+ 
+    create_user_message(
         db=db,
         session_id=session.id,
         content=req.content,
     )
-
-    agent_result = graph.invoke(
-        {"question": req.content}
-    )
-
-    agent_msg = create_agent_message(
+ 
+    if req.streaming:
+        return StreamingResponse(
+            stream_chat_sse(
+                question=req.content,
+                session=session,
+                db=db,
+                create_agent_message_fn=create_agent_message,
+            ),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control":     "no-cache",
+                "X-Accel-Buffering": "no",
+                "Connection":        "keep-alive",
+            },
+        )
+ 
+    return run_chat_sync(
+        question=req.content,
+        session=session,
         db=db,
-        session_id=session.id,
-        agent_metadata=build_metadata(agent_result),
+        create_agent_message_fn=create_agent_message,
+        build_metadata_fn=build_metadata,
+        response_builder_fn=_build_chat_response,
     )
-
-    return ChatResponse(
-        session=SessionInfo(
-            id=session.id,
-            title=session.title,
-        ),
-        assistant=AssistantChat.model_validate(agent_msg),
-        message=Message.model_validate(agent_msg),
-    )
-
-
-
-
-
-
-
-
-
+ 

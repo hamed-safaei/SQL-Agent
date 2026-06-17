@@ -9,8 +9,9 @@ from uuid import UUID
 
 class ChatRequest(BaseModel):
     session_id: Optional[UUID] = Field(default=None, examples=[None])
-    content: str
-
+    content:    str
+    streaming:  bool = Field(default=False, description="True → SSE stream, False → JSON")
+ 
 
 class UserChat(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -20,14 +21,14 @@ class UserChat(BaseModel):
 
 class AssistantChat(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
+    mode: str
     agent_metadata: Dict[str, Any]
-    # created_at: datetime
 
 
 class Message(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id : int
-
+    agent_msg_id: int = Field(validation_alias="id")
 
 class ChatResponse(BaseModel):
     session: SessionInfo
@@ -35,6 +36,8 @@ class ChatResponse(BaseModel):
     assistant: AssistantChat
     message : Message
     
+
+
 
 
 
