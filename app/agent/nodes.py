@@ -76,12 +76,7 @@
 
 
 
-
-
-
-
 from typing import Any
-
 from langgraph.types import StreamWriter
 
 from .schemas.states.agent_state import AgentState
@@ -95,25 +90,8 @@ from .chains import (
 )
 from app.core.database.clientdb import get_db_schema_text , run_sql_query
 
-# ── Helpers (replace stubs with real implementations) ─────────────────────────
 
-# def get_db_schema_text() -> str:
-#     """Return the database schema as plain text."""
-#     # TODO: replace with your real schema loader
-#     return """
-#     TABLE users (id SERIAL PRIMARY KEY, name TEXT, email TEXT, created_at TIMESTAMP);
-#     TABLE orders (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id), total NUMERIC, created_at TIMESTAMP);
-#     TABLE products (id SERIAL PRIMARY KEY, name TEXT, price NUMERIC, stock INT);
-#     TABLE order_items (id SERIAL PRIMARY KEY, order_id INT REFERENCES orders(id), product_id INT REFERENCES products(id), quantity INT);
-#     """
-
-# def run_sql_query(sql: str) -> Any:
-#     """Execute the SQL and return the result."""
-#     # TODO: replace with your real DB executor
-#     return [{"id": 1, "name": "Alice", "total": 250.0}]
-
-
-# ── Intent (no streaming) ─────────────────────────────────────────────────────
+#Intent
 
 def intent_node(state: AgentState):
     result = intent_chain.invoke({"question": state["question"]})
@@ -124,7 +102,7 @@ def router(state: AgentState) -> str:
     return state["mode"]
 
 
-# ── Chat ──────────────────────────────────────────────────────────────────────
+#Chat
 
 def chat_node(state: AgentState, writer: StreamWriter):
     full_message = ""
@@ -136,7 +114,7 @@ def chat_node(state: AgentState, writer: StreamWriter):
     return {"message": full_message}
 
 
-# ── SQL only ──────────────────────────────────────────────────────────────────
+#SQL only 
 
 def sql_node(state: AgentState, writer: StreamWriter):
     schema_text = get_db_schema_text()
@@ -149,7 +127,7 @@ def sql_node(state: AgentState, writer: StreamWriter):
     return {"sql": full_sql}
 
 
-# ── Result (sql stream → blocking execute) ────────────────────────────────────
+#Result
 
 def result_node(state: AgentState, writer: StreamWriter):
     schema_text = get_db_schema_text()
@@ -159,7 +137,7 @@ def result_node(state: AgentState, writer: StreamWriter):
         token = chunk.content
         if token:
             full_sql += token
-            writer({"type": "token", "node": "sql", "value": token})
+            # writer({"type": "token", "node": "sql", "value": token})
 
     query_result = run_sql_query(full_sql)
     writer({"type": "result", "node": "result", "value": query_result})
@@ -167,7 +145,7 @@ def result_node(state: AgentState, writer: StreamWriter):
     return {"sql": full_sql, "result": query_result}
 
 
-# ── Full (multi-step stream) ──────────────────────────────────────────────────
+#Full
 
 def full_node(state: AgentState, writer: StreamWriter):
     """
@@ -211,7 +189,7 @@ def full_node(state: AgentState, writer: StreamWriter):
             writer({"type": "token", "node": "full", "section": "sql_message", "value": token})
     writer({"type": "section_end", "node": "full", "section": "sql_message"})
 
-    # 4. Execute SQL (blocking)
+    # 4. Execute SQL 
     query_result = run_sql_query(full_sql)
     writer({"type": "result", "node": "full", "section": "result", "value": query_result})
 
