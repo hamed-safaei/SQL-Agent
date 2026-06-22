@@ -19,7 +19,7 @@ from .user import (
 )
 
 
-from .connection import ConnectionTest
+from .connection import  IndexSchemaRequest
 
 from .chat import (
     ChatRequest,
