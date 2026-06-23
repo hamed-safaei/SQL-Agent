@@ -1,63 +1,51 @@
-# from app.rag import (
-#     order_items_text,
-#     brands_text,
-#     orders_text,
-#     staffs_text,
-#     stocks_text,
-#     stores_text,
-#     products_text,
-#     customers_text,
-#     categories_text,
-# )
+# """
+# Embedding generation for schema documentation.
+# Uses OpenAI-compatible API to create vector representations of table docs.
+# """
 
 # from openai import OpenAI
+
 # from app.core import settings
+# from app.rag.schema_docs import TABLE_DOCS
 
+# _EMBEDDING_MODEL = "text-embedding-3-large"
+# _VECTOR_SIZE = 3072
 
-# BASE_URL = "https://api.gapgpt.app/v1"
-# API_KEY = settings.OPENAI_API_KEY
-
-
-# client_openai = OpenAI(
-#     base_url=BASE_URL,
-#     api_key=API_KEY,
+# _client = OpenAI(
+#     base_url="https://api.gapgpt.app/v1",
+#     api_key=settings.OPENAI_API_KEY,
 # )
 
 
-# def generate_embeddings():
-#     docs = [
-#         {"table": "sales.customers", "text": customers_text},
-#         {"table": "sales.orders", "text": orders_text},
-#         {"table": "sales.order_items", "text": order_items_text},
-#         {"table": "production.products", "text": products_text},
-#         {"table": "production.brands", "text": brands_text},
-#         {"table": "production.categories", "text": categories_text},
-#         {"table": "production.stocks", "text": stocks_text},
-#         {"table": "sales.stores", "text": stores_text},
-#         {"table": "sales.staffs", "text": staffs_text},
+# def _embed(text: str) -> list[float]:
+#     return (
+#         _client.embeddings.create(
+#             model=_EMBEDDING_MODEL,
+#             input=text,
+#         )
+#         .data[0]
+#         .embedding
+#     )
+
+
+# def generate_embeddings(
+#     docs: list[dict[str, str]] | None = None,
+# ) -> list[dict]:
+
+#     source = docs if docs is not None else TABLE_DOCS
+
+#     return [
+#         {
+#             "table": doc["table"],
+#             "chunk_type": doc["chunk_type"],
+#             "text": doc["text"],
+#             "vector": _embed(doc["text"]),
+#         }
+#         for doc in source
 #     ]
 
-#     vectors = []
 
-#     for doc in docs:
-#         embedding = client_openai.embeddings.create(
-#             model="text-embedding-3-large",
-#             input=doc["text"]
-#         ).data[0].embedding
-
-#         vectors.append({
-#             "table": doc["table"],
-#             "text": doc["text"],
-#             "vector": embedding,
-#         })
-
-#     return vectors
-
-
-
-
-
-
+# VECTOR_SIZE = _VECTOR_SIZE
 
 
 
@@ -80,8 +68,10 @@
 """
 Embedding generation for schema documentation.
 Uses OpenAI-compatible API to create vector representations of table docs.
+Supports both dense (text-embedding-3-large) and sparse (BM25) vectors.
 """
 
+from fastembed import SparseTextEmbedding
 from openai import OpenAI
 
 from app.core import settings
@@ -95,9 +85,10 @@ _client = OpenAI(
     api_key=settings.OPENAI_API_KEY,
 )
 
+_sparse_model = SparseTextEmbedding(model_name="Qdrant/bm25")
 
-def _embed(text: str) -> list[float]:
-    """Single embedding call — isolated for easy mocking in tests."""
+
+def _embed_dense(text: str) -> list[float]:
     return (
         _client.embeddings.create(
             model=_EMBEDDING_MODEL,
@@ -108,26 +99,27 @@ def _embed(text: str) -> list[float]:
     )
 
 
+def _embed_sparse(text: str) -> dict:
+    result = list(_sparse_model.embed([text]))[0]
+    return {
+        "indices": result.indices.tolist(),
+        "values": result.values.tolist(),
+    }
+
+
 def generate_embeddings(
     docs: list[dict[str, str]] | None = None,
 ) -> list[dict]:
-    """
-    Generate embeddings for a list of table documents.
 
-    Args:
-        docs: List of {"table": ..., "text": ...} dicts.
-              Defaults to TABLE_DOCS from schema_docs.py.
-
-    Returns:
-        List of {"table": ..., "text": ..., "vector": [...]} dicts.
-    """
     source = docs if docs is not None else TABLE_DOCS
 
     return [
         {
             "table": doc["table"],
-            "text":  doc["text"],
-            "vector": _embed(doc["text"]),
+            "chunk_type": doc["chunk_type"],
+            "text": doc["text"],
+            "dense_vector": _embed_dense(doc["text"]),
+            "sparse_vector": _embed_sparse(doc["text"]),
         }
         for doc in source
     ]
