@@ -14,7 +14,7 @@ services:
     container_name: neo4j_db
     ports:
       - "7474:7474"   # Web UI
-      - "7687:7687"   # Bolt protocol
+      - "8073:7687"   # Bolt protocol
     environment:
       NEO4J_AUTH: neo4j/password123
     volumes:
